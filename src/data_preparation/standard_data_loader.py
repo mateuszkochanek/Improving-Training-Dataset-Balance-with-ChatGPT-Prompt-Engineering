@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
+import torch
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
 from transformers import BertTokenizer
 from datasets import load_dataset
+from typing import Tuple
 
 
 class StandardDataLoaderConstructor:
@@ -11,7 +13,7 @@ class StandardDataLoaderConstructor:
     def __init__(self):
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-    def preprocess_data(self, data):
+    def preprocess_data(self, data: pd.DataFrame) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         input_ids = []
         attention_masks = []
 
@@ -35,7 +37,7 @@ class StandardDataLoaderConstructor:
 
         return input_ids, attention_masks, labels
 
-    def construct_dataloaders(self, fraction_negative=1.0):
+    def construct_dataloaders(self, fraction_negative: float = 1.0) -> Tuple[DataLoader, DataLoader, DataLoader]:
         dataset_train = load_dataset("imdb", split="train")
         dataset_test = load_dataset("imdb", split="test")
 
@@ -64,8 +66,3 @@ class StandardDataLoaderConstructor:
         test_dataloader = DataLoader(test_dataset, batch_size=8, shuffle=True)
 
         return train_dataloader, val_dataloader, test_dataloader
-
-
-if __name__ == '__main__':
-    loader_constructor = StandardDataLoaderConstructor()
-    train_dataloader, val_dataloader, test_dataloader = loader_constructor.construct_dataloaders(fraction_negative=0.1)
