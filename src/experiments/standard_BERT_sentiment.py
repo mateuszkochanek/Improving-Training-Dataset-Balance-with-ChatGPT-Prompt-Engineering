@@ -1,7 +1,8 @@
 import os
 import torch
 import pickle
-import pandas as pd
+import pandas as  dataset_test = load_dataset("imdb", split="test")
+        test_df = pd.DataFrame(dataset_test)pd
 from tqdm import tqdm
 import torch.optim as optim
 from transformers import BertForSequenceClassification
@@ -9,21 +10,20 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 import seaborn as sns
 import matplotlib.pyplot as plt
-from typing import Tuple
-
-from utils.helper_functions import check_available_device
+from typing import Tuple, Any, Dict, List
 
 
 class StandardBERTExperiment:
 
     def __init__(self,
+                 experiment_name: str,
                  train_dataloader: DataLoader,
                  val_dataloader: DataLoader,
                  test_dataloader: DataLoader,
-                 experiment_name: str,
+                 device: Any,
                  lr: float = 2e-5):
 
-        self.device = check_available_device()
+        self.device = device
         self.model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2)
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
@@ -69,7 +69,7 @@ class StandardBERTExperiment:
         epoch_loss = running_loss / len(self.val_dataloader)
         return epoch_loss, accuracy, precision, recall, f1
 
-    def run_tests(self, epochs: int = 5) -> None:
+    def run_train_test(self, epochs: int = 5, current_fold: int = None) -> List[Dict]:
         metrics = []
 
         for epoch in range(epochs):
@@ -79,7 +79,8 @@ class StandardBERTExperiment:
             print(
                 f'Training - Epoch: {epoch}, Loss: {epoch_loss}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1 Score: {f1}')
             metrics.append(
-                {"experiment_name": self.experiment_name, "step": "train", 'epoch': epoch, 'loss': epoch_loss,
+                {"experiment_name": self.experiment_name, "fold": current_fold, "step": "train", 'epoch': epoch,
+                 'loss': epoch_loss,
                  'accuracy': accuracy, 'precision': precision, 'recall': recall, 'f1': f1})
 
             self.model.eval()
@@ -88,7 +89,8 @@ class StandardBERTExperiment:
                 print(
                     f'Validation - Epoch: {epoch}, Loss: {epoch_loss}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1 Score: {f1}')
                 metrics.append(
-                    {"experiment_name": self.experiment_name, "step": "validate", 'epoch': epoch, 'loss': epoch_loss,
+                    {"experiment_name": self.experiment_name, "fold": current_fold, "step": "validate", 'epoch': epoch,
+                     'loss': epoch_loss,
                      'accuracy': accuracy, 'precision': precision, 'recall': recall, 'f1': f1})
 
         self.model.eval()
@@ -97,9 +99,9 @@ class StandardBERTExperiment:
                                                                                                "Testing")
             print(
                 f'Testing - Loss: {test_loss}, Accuracy: {test_accuracy}, Precision: {test_precision}, Recall: {test_recall}, F1 Score: {test_f1}')
-            metrics.append({"experiment_name": self.experiment_name, "step": "test", 'epoch': None, 'loss': test_loss,
-                            'accuracy': test_accuracy, 'precision': test_precision, 'recall': test_recall,
-                            'f1': test_f1})
-
-        metrics_df = pd.DataFrame(metrics)
-        metrics_df.to_csv(os.path.join('results', self.experiment_name + '_metrics.csv'), index=False, sep=";")
+            metrics.append(
+                {"experiment_name": self.experiment_name, "fold": current_fold, "step": "test", 'epoch': None,
+                 'loss': test_loss,
+                 'accuracy': test_accuracy, 'precision': test_precision, 'recall': test_recall,
+                 'f1': test_f1})
+        return metrics
