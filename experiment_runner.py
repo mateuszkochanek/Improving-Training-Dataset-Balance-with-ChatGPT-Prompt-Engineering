@@ -1,6 +1,7 @@
 import sys
 import os
 import pandas as pd
+from datasets import load_dataset
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 
@@ -9,7 +10,7 @@ sys.path.append('src')
 from data_preparation.standard_data_loader import StandardDataLoaderConstructor
 from experiments.standard_BERT_sentiment import StandardBERTExperiment
 from experiments.standard_sklearn_sentiment import ModelTester
-from utils.helper_functions import check_available_device
+from utils.helper_functions import check_available_device, prepare_train_data
 
 
 def run_BERT_experiment(experiment_name, fraction_negative=1.0, k_folds=5, replace_csv=None):
@@ -38,8 +39,8 @@ def run_sklearn_experiment(experiment_name, model, fraction_negative=1.0, k_fold
     dataset_test = load_dataset("imdb", split="test")
     test_data = pd.DataFrame(dataset_test)
 
-    nb_tester = ModelTester(experiment_name, model, train_data, test_data, n_splits=k_folds)
-    metrics = nb_tester.train_and_evaluate()
+    tester = ModelTester(experiment_name, model, train_data, test_data, n_splits=k_folds)
+    metrics = tester.train_and_evaluate()
 
     metrics_df = pd.DataFrame(metrics)
     metrics_df.to_csv(os.path.join('results', experiment_name + '_metrics.csv'), index=False, sep=";")
@@ -49,22 +50,22 @@ if __name__ == '__main__':
     DEVICE = check_available_device()
 
     # standard BERT experiment on full dataset
-    run_BERT_experiment("standard_BERT_fulldataset")
+    #run_BERT_experiment("standard_BERT_fulldataset")
     # standard BERT experiment on unbalanced dataset
-    run_BERT_experiment("standard_BERT_unbalanceddataset", fraction_negative=0.05)
+    #run_BERT_experiment("standard_BERT_unbalanceddataset", fraction_negative=0.05)
     # BERT experiment on dataset with synthetic data
-    run_BERT_experiment("synthetic_BERT_unbalanceddataset", fraction_negative=0.05, replace_csv="./data/negative_review")
+    #run_BERT_experiment("synthetic_BERT_unbalanceddataset", fraction_negative=0.05, replace_csv="./data/negative_review")
 
     # standard NaiveBayes experiment on full dataset
     run_sklearn_experiment("standard_NaiveBayes_fulldataset", MultinomialNB(), fraction_negative=1.0, k_folds=5, replace_csv=None)
     # standard NaiveBayes experiment on unbalanced dataset
     run_sklearn_experiment("standard_NaiveBayes_unbalanceddataset", MultinomialNB(), fraction_negative=0.05, k_folds=5)
     # NaiveBayes experiment on dataset with synthetic data
-    run_sklearn_experiment("synthetic_NaiveBayes_unbalanceddataset", MultinomialNB(), fraction_negative=0.05, k_folds=5, replace_csv="./data/negative_review")
+    run_sklearn_experiment("synthetic_NaiveBayes_unbalanceddataset", MultinomialNB(), fraction_negative=0.05, k_folds=5, replace_csv="./data/negative_reviews.csv")
 
     # standard RandomForestClassifier experiment on full dataset
     run_sklearn_experiment("standard_RandomForest_fulldataset", RandomForestClassifier(), fraction_negative=1.0, k_folds=5, replace_csv=None)
     # standard RandomForestClassifier experiment on unbalanced dataset
     run_sklearn_experiment("standard_RandomForest_unbalanceddataset", RandomForestClassifier(), fraction_negative=0.05, k_folds=5)
     # RandomForestClassifier experiment on dataset with synthetic data
-    run_sklearn_experiment("synthetic_RandomForest_unbalanceddataset", RandomForestClassifier(), fraction_negative=0.05, k_folds=5, replace_csv="./data/negative_review")
+    run_sklearn_experiment("synthetic_RandomForest_unbalanceddataset", RandomForestClassifier(), fraction_negative=0.05, k_folds=5, replace_csv="./data/negative_reviews.csv")
