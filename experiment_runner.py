@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 sys.path.append('src')
 
-from data_preparation.standard_data_loader import StandardDataLoaderConstructor
+from data_preparation.bert_data_loader import BERTDataLoaderConstructor
 from experiments.standard_BERT_sentiment import StandardBERTExperiment
 from experiments.standard_sklearn_sentiment import ModelTester
 from utils.helper_functions import check_available_device, prepare_train_data
@@ -15,7 +15,7 @@ from utils.helper_functions import check_available_device, prepare_train_data
 
 def run_BERT_experiment(experiment_name, fraction_negative=1.0, k_folds=5, replace_csv=None):
     metrics = []
-    loader_constructor = StandardDataLoaderConstructor(replace_csv)
+    loader_constructor = BERTDataLoaderConstructor(replace_csv)
     fold_dataloaders = loader_constructor.construct_kfold_dataloaders(fraction_negative=fraction_negative,
                                                                       k_folds=k_folds)
     test_dataloader = loader_constructor.construct_test_dataloader()
@@ -46,26 +46,35 @@ def run_sklearn_experiment(experiment_name, model, fraction_negative=1.0, k_fold
     metrics_df.to_csv(os.path.join('results', experiment_name + '_metrics.csv'), index=False, sep=";")
 
 
+def run_experiments(model_type, experiment_prefix, fraction_negative=1.0, k_folds=5, replace_csv=None):
+    if model_type == "BERT":
+        run_BERT_experiment(f"{experiment_prefix}_BERT", fraction_negative, k_folds, replace_csv)
+    elif model_type == "NaiveBayes":
+        run_sklearn_experiment(f"{experiment_prefix}_NaiveBayes", MultinomialNB(), fraction_negative, k_folds,
+                               replace_csv)
+    elif model_type == "RandomForest":
+        run_sklearn_experiment(f"{experiment_prefix}_RandomForest", RandomForestClassifier(), fraction_negative,
+                               k_folds, replace_csv)
+    else:
+        print("Invalid model type")
+
+
 if __name__ == '__main__':
     DEVICE = check_available_device()
+    model_types = ["BERT", "NaiveBayes", "RandomForest"]
+    experiment_settings = [
+        ("full", 1.0, None),
+        ("unbalanced_03", 0.3, None),
+        ("unbalanced_02", 0.2, None),
+        ("unbalanced_01", 0.1, None),
+        ("composite_unbalanced_03", 0.3, "./data/negative_reviews.csv"),
+        ("composite_unbalanced_02", 0.2, "./data/negative_reviews.csv"),
+        ("composite_unbalanced_01", 0.1, "./data/negative_reviews.csv"),
+        ("basic_unbalanced_03", 0.3, "./data/basic_negative_reviews.csv"),
+        ("basic_unbalanced_02", 0.2, "./data/basic_negative_reviews.csv"),
+        ("basic_unbalanced_01", 0.1, "./data/basic_negative_reviews.csv"),
+    ]
 
-    # standard BERT experiment on full dataset
-    #run_BERT_experiment("standard_BERT_fulldataset")
-    # standard BERT experiment on unbalanced dataset
-    #run_BERT_experiment("standard_BERT_unbalanceddataset", fraction_negative=0.05)
-    # BERT experiment on dataset with synthetic data
-    #run_BERT_experiment("synthetic_BERT_unbalanceddataset", fraction_negative=0.05, replace_csv="./data/negative_review")
-
-    # standard NaiveBayes experiment on full dataset
-    run_sklearn_experiment("standard_NaiveBayes_fulldataset", MultinomialNB(), fraction_negative=1.0, k_folds=5, replace_csv=None)
-    # standard NaiveBayes experiment on unbalanced dataset
-    run_sklearn_experiment("standard_NaiveBayes_unbalanceddataset", MultinomialNB(), fraction_negative=0.05, k_folds=5)
-    # NaiveBayes experiment on dataset with synthetic data
-    run_sklearn_experiment("synthetic_NaiveBayes_unbalanceddataset", MultinomialNB(), fraction_negative=0.05, k_folds=5, replace_csv="./data/negative_reviews.csv")
-
-    # standard RandomForestClassifier experiment on full dataset
-    run_sklearn_experiment("standard_RandomForest_fulldataset", RandomForestClassifier(), fraction_negative=1.0, k_folds=5, replace_csv=None)
-    # standard RandomForestClassifier experiment on unbalanced dataset
-    run_sklearn_experiment("standard_RandomForest_unbalanceddataset", RandomForestClassifier(), fraction_negative=0.05, k_folds=5)
-    # RandomForestClassifier experiment on dataset with synthetic data
-    run_sklearn_experiment("synthetic_RandomForest_unbalanceddataset", RandomForestClassifier(), fraction_negative=0.05, k_folds=5, replace_csv="./data/negative_reviews.csv")
+    for model_type in model_types:
+        for experiment_suffix, fraction_negative, replace_csv in experiment_settings:
+            run_experiments(model_type, experiment_suffix, fraction_negative, k_folds=5, replace_csv=replace_csv)

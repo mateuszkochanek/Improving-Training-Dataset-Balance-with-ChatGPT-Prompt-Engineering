@@ -1,7 +1,7 @@
 import os
 import torch
 import pickle
-import pandas as  pd
+import pandas as pd
 from tqdm import tqdm
 import torch.optim as optim
 from transformers import BertForSequenceClassification

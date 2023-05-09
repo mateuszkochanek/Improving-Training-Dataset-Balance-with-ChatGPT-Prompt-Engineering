@@ -7,7 +7,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
-
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+import string
 
 class ModelTester:
     def __init__(self, experiment_name, model, train_data: pd.DataFrame, test_data: pd.DataFrame, n_splits: int = 5):
@@ -18,10 +24,26 @@ class ModelTester:
 
         self.experiment_name = experiment_name
 
+    @staticmethod
+    def preprocess_text(text: str) -> str:
+        # Tokenize and remove punctuation
+        tokens = word_tokenize(text)
+        tokens = [word.lower() for word in tokens if word.isalpha()]
+
+        # Remove stopwords
+        stop_words = set(stopwords.words("english"))
+        tokens = [word for word in tokens if word not in stop_words]
+
+        # Stemming
+        stemmer = PorterStemmer()
+        tokens = [stemmer.stem(word) for word in tokens]
+
+        return " ".join(tokens)
+
     def train_and_evaluate(self):
-        X_train = self.train_data['text']
+        X_train = self.train_data['text'].apply(self.preprocess_text)
         y_train = self.train_data['label']
-        X_test = self.test_data['text']
+        X_test = self.test_data['text'].apply(self.preprocess_text)
         y_test = self.test_data['label']
 
         # Create a pipeline with TF-IDF and the chosen model
