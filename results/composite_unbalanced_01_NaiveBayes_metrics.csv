@@ -1,0 +1,11 @@
+experiment_name;fold;step;epoch;loss;accuracy;precision;recall;f1
+composite_unbalanced_01_NaiveBayes;0;valid;;;0.7498;0.6664889362836577;1.0;0.7998720204767237
+composite_unbalanced_01_NaiveBayes;0;test;;;0.50664;0.99984;0.5033427305678615;0.6695954995981784
+composite_unbalanced_01_NaiveBayes;1;valid;;;0.9958;0.9936280366387893;0.998;0.9958092197166234
+composite_unbalanced_01_NaiveBayes;1;test;;;0.5308;0.9992;0.5159025196199918;0.6804685371833289
+composite_unbalanced_01_NaiveBayes;2;valid;;;0.9966;0.9948186528497409;0.9984;0.9966061090037932
+composite_unbalanced_01_NaiveBayes;2;test;;;0.53244;0.99928;0.5167763021802987;0.681246761746339
+composite_unbalanced_01_NaiveBayes;3;valid;;;0.9968;0.9944267515923567;0.9992;0.9968076616121309
+composite_unbalanced_01_NaiveBayes;3;test;;;0.53284;0.99936;0.5169887845052353;0.6814499631781361
+composite_unbalanced_01_NaiveBayes;4;valid;;;0.9962;0.993633107839236;0.9988;0.9962098543786158
+composite_unbalanced_01_NaiveBayes;4;test;;;0.5322;0.99904;0.5166521865044889;0.6810831447192605

@@ -1,0 +1,11 @@
+experiment_name;fold;step;epoch;loss;accuracy;precision;recall;f1
+basic_unbalanced_03_RandomForest;0;valid;;;0.5076;0.503839935327405;0.9972;0.6694414607948443
+basic_unbalanced_03_RandomForest;0;test;;;0.5104;0.99816;0.5052644367052725;0.6709146636554283
+basic_unbalanced_03_RandomForest;1;valid;;;0.7678;0.684181568088033;0.9948;0.810757946210269
+basic_unbalanced_03_RandomForest;1;test;;;0.54172;0.99624;0.5218539161044294;0.6849269862222589
+basic_unbalanced_03_RandomForest;2;valid;;;0.996;1.0;0.992;0.9959839357429718
+basic_unbalanced_03_RandomForest;2;test;;;0.61468;0.99352;0.5652450958081107;0.720547706768008
+basic_unbalanced_03_RandomForest;3;valid;;;0.9964;1.0;0.9928;0.9963869931754317
+basic_unbalanced_03_RandomForest;3;test;;;0.6074;0.99368;0.560590332626258;0.7167960296621173
+basic_unbalanced_03_RandomForest;4;valid;;;0.9968;1.0;0.9936;0.9967897271268058
+basic_unbalanced_03_RandomForest;4;test;;;0.61204;0.99384;0.5635291449308233;0.7192357794181502
