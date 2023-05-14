@@ -47,6 +47,9 @@ def run_sklearn_experiment(experiment_name, model, fraction_negative=1.0, k_fold
 
 
 def run_experiments(model_type, experiment_prefix, fraction_negative=1.0, k_folds=5, replace_csv=None):
+    print("############################################################")
+    print("Experiment ", experiment_prefix, "_", model_type, " is running")
+    print("############################################################")
     if model_type == "BERT":
         run_BERT_experiment(f"{experiment_prefix}_BERT", fraction_negative, k_folds, replace_csv)
     elif model_type == "NaiveBayes":
@@ -67,12 +70,16 @@ if __name__ == '__main__':
         ("unbalanced_03", 0.3, None),
         ("unbalanced_02", 0.2, None),
         ("unbalanced_01", 0.1, None),
-        ("composite_unbalanced_03", 0.3, "./data/negative_reviews.csv"),
-        ("composite_unbalanced_02", 0.2, "./data/negative_reviews.csv"),
-        ("composite_unbalanced_01", 0.1, "./data/negative_reviews.csv"),
-        ("basic_unbalanced_03", 0.3, "./data/basic_negative_reviews.csv"),
-        ("basic_unbalanced_02", 0.2, "./data/basic_negative_reviews.csv"),
-        ("basic_unbalanced_01", 0.1, "./data/basic_negative_reviews.csv"),
+        ("composite_03", 0.3, "./data/negative_reviews.csv"),
+        ("composite_02", 0.2, "./data/negative_reviews.csv"),
+        ("composite_01", 0.1, "./data/negative_reviews.csv"),
+        ("basic_03", 0.3, "./data/basic_negative_reviews.csv"),
+        ("basic_02", 0.2, "./data/basic_negative_reviews.csv"),
+        ("basic_01", 0.1, "./data/basic_negative_reviews.csv"),
+        ("similar_02", 0.2, "./data/similar_negative_reviews_02.csv"),
+        ("similar_01", 0.1, "./data/similar_negative_reviews_01.csv"),
+        ("similar_02", 0.2, "./data/similar_negative_reviews_02.csv"),
+        ("similar_01", 0.1, "./data/similar_negative_reviews_01.csv"),
     ]
 
     for model_type in model_types:

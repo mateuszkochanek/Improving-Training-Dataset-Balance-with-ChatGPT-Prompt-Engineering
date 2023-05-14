@@ -15,7 +15,7 @@ def check_available_device():
     return device
 
 
-def prepare_train_data(fraction_negative: float, replace_csv: str = None) -> pd.DataFrame:
+def prepare_sampled_train_data(fraction_negative: float, replace_csv: str = None) -> pd.DataFrame:
     dataset_train = load_dataset("imdb", split="train")
     train_data = pd.DataFrame(dataset_train)
 
@@ -23,6 +23,28 @@ def prepare_train_data(fraction_negative: float, replace_csv: str = None) -> pd.
         negative_indices = train_data[train_data['label'] == 0].index
         negative_sample = np.random.choice(negative_indices, int(len(negative_indices) * fraction_negative),
                                            replace=False)
+        train_data = pd.concat([train_data[train_data['label'] == 1], train_data.loc[negative_sample]])
+
+        if replace_csv is not None:
+            csv_data = pd.read_csv(replace_csv, sep=';', index_col=None)
+
+            num_samples_to_replace = int(len(negative_indices) * (1 - fraction_negative))
+
+            csv_data = csv_data.sample(frac=1).reset_index(drop=True)
+            csv_sample = csv_data.iloc[:num_samples_to_replace]
+
+            train_data = pd.concat([train_data, csv_sample])
+
+    return train_data
+
+
+def prepare_train_data(fraction_negative: float, replace_csv: str = None) -> pd.DataFrame:
+    dataset_train = load_dataset("imdb", split="train")
+    train_data = pd.DataFrame(dataset_train)
+
+    if 0 < fraction_negative < 1:
+        negative_indices = train_data[train_data['label'] == 0].index
+        negative_sample = negative_indices[:int(len(negative_indices) * fraction_negative)]
         train_data = pd.concat([train_data[train_data['label'] == 1], train_data.loc[negative_sample]])
 
         if replace_csv is not None:
