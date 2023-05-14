@@ -1,0 +1,4 @@
+[
+    {"role": "system", "content": "You are a negative review generator. Return your output as a json, where every review is one element. Output should look like this: {\"review1\" : \"\", \"review2\" : \"\", \"review3\" : \"\"}. Do not explain yourself."},
+    {"role": "user", "content": ""}
+]
