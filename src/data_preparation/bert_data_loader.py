@@ -17,6 +17,7 @@ class BERTDataLoaderConstructor:
     def __init__(self, replace_csv):
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
         self.replace_csv = replace_csv
+
     def preprocess_data(self, data: pd.DataFrame) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         input_ids = []
         attention_masks = []
@@ -41,8 +42,10 @@ class BERTDataLoaderConstructor:
 
         return input_ids, attention_masks, labels
 
-    def construct_dataloaders(self, fraction_negative: float = 1.0) -> Tuple[DataLoader, DataLoader, DataLoader]:
-        train_data = prepare_train_data(fraction_negative, replace_csv=self.replace_csv)
+    def construct_dataloaders(self, fraction_negative: float = 1.0,
+                              original_samples_size=None) -> Tuple[DataLoader, DataLoader, DataLoader]:
+        train_data = prepare_train_data(fraction_negative, replace_csv=self.replace_csv,
+                                        original_samples_size=original_samples_size)
         train_df, val_df = train_test_split(train_data, stratify=train_data['label'], test_size=0.1, random_state=666)
 
         train_input_ids, train_attention_masks, train_labels = self.preprocess_data(train_df)
@@ -58,8 +61,10 @@ class BERTDataLoaderConstructor:
 
         return train_dataloader, val_dataloader, test_dataloader
 
-    def construct_kfold_dataloaders(self, fraction_negative: float = 1.0, k_folds: int = 5) -> List[Tuple[DataLoader, DataLoader]]:
-        train_data = prepare_train_data(fraction_negative, replace_csv=self.replace_csv)
+    def construct_kfold_dataloaders(self, fraction_negative: float = 1.0, k_folds: int = 5,
+                                    original_samples_size=None) -> List[Tuple[DataLoader, DataLoader]]:
+        train_data = prepare_train_data(fraction_negative, replace_csv=self.replace_csv,
+                                        original_samples_size=original_samples_size)
         skf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=666)
         fold_dataloaders = []
 

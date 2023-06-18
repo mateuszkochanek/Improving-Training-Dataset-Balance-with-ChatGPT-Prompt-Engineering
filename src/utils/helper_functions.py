@@ -38,9 +38,18 @@ def prepare_sampled_train_data(fraction_negative: float, replace_csv: str = None
     return train_data
 
 
-def prepare_train_data(fraction_negative: float, replace_csv: str = None) -> pd.DataFrame:
+def prepare_train_data(fraction_negative: float, replace_csv: str = None, original_samples_size: int = None) -> pd.DataFrame:
     dataset_train = load_dataset("imdb", split="train")
     train_data = pd.DataFrame(dataset_train)
+
+    if original_samples_size is not None:
+        positive_indices = train_data[train_data['label'] == 1].index
+        negative_indices = train_data[train_data['label'] == 0].index
+
+        positive_sample = np.random.choice(positive_indices, original_samples_size, replace=False)
+        negative_sample = np.random.choice(negative_indices, original_samples_size, replace=False)
+
+        train_data = pd.concat([train_data.loc[positive_sample], train_data.loc[negative_sample]], ignore_index=True)
 
     if 0 < fraction_negative < 1:
         negative_indices = train_data[train_data['label'] == 0].index
